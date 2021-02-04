@@ -40,6 +40,10 @@ check_set() {
   fi
 }
 
+is_running_on_buildkite() {
+  [[ "${BUILDKITE:-}" == true ]]
+}
+
 # Checks for failed exit codes returned by a timeout command.
 # If the underlying command fails due to timeout, this function stops the current execution returning either the
 # TIMEOUT exit code (124) or the override value provided by the caller.
@@ -140,6 +144,10 @@ checkout() {
     elif [[ "${exit_code}" -ne 0 ]]; then
       exit "${exit_code}"
     fi
+  fi
+
+  if is_running_on_buildkite; then
+    buildkite-agent artifact upload "${log}"
   fi
   rm -rf "${log}"
   log_info "Checkout done"
